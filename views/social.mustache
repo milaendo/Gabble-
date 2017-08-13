@@ -6,10 +6,11 @@
   <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
-  <h1>Submit new user</h1>
+  <h1>Gab</h1>
   <form action="/social" method="post">
-    <input type="textarea" name="blob">
-    <button type="submit"></button>
+  	<input type="hidden" name="userid" value="{{userid}}">
+    <textarea rows="4" cols="50" name="gab" placeholder="whats on your mind?"></textarea> 
+    <button type="submit">Gab</button>
   </form>
 </body>
 </html>

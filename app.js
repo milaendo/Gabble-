@@ -5,6 +5,7 @@ const mustacheExpress = require('mustache-express');
 const bodyParser = require('body-parser')
 const config = require('config')
 const mysql = require('mysql')
+const session = require('express-session')
 
 app.use(bodyParser.urlencoded({extended:false}))
 app.use(bodyParser.json())
@@ -12,6 +13,11 @@ app.engine('mustache', mustacheExpress())
 app.set('views', './views')
 app.set('view engine', 'mustache')
 app.use(express.static(path.join(__dirname, 'static')))
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true
+}))
 
 const conn = mysql.createConnection({
   host: config.get('db.host'),
@@ -39,33 +45,52 @@ app.post("/register",function(req, res, next){
 	})
 })
 
-app.post("/login:id", function(req, res, next){
+app.post("/login", function(req, res, next){
 	const username = req.body.username
 	const password = req.body.password
-	const id = req.body.id 
-	const sql = `SELECT user_name, password FROM users where id = idusers`
+	const sql = `SELECT user_name, password, idusers FROM users where user_name = ? and password = ?`
 
-	conn.query(sql, function(err,results,fields){
-		if (!err){
-			res.redirect('/')
+	conn.query(sql,[username,password], function(err,results,fields){
+		if (!err && results[0]){
+			req.session.username = results[0].user_name
+			req.session.idusers = results[0].idusers
+			res.redirect('./social')
 		}
 		else {
-			res.send('welcome back')
+
+			res.send("error")
 		}
 	})
 })
 app.get("/", function(req, res, next){
   res.render("index")
 })
+app.post("/social", function(req,res,next){
+	const gab = req.body.gab
+	const userid = req.session.idusers 
+	const sql = `INSERT into gabs (gab, userid) VALUES (?,?)`
 
+	conn.query(sql,[gab,userid],function(err,results,fields){
+		if(!err){
+			res.render("./home")
+		}
+		else {
+			res.send("error")
+		}
+	})
+})
+app.get("/social", function(req,res,next){
+	res.render("social")
+})
+app.get("/home",function(req,res,next){
+	const sql = `SELECT gab,user_name from gabs join users on gabs.userid = users.idusers`
 
-// app.post('/social', function(req, res, next){
-// 	const message = req.body.blob
-// 	const sql = ` INSERT into gabs (`
-// })
-// app.get("/social", function(req, res, next){
-// 	res.render("social")
-// })
+	conn.query(sql,function(err, results, fields){
+		
+	})
+	res.render("home")
+})
+
 app.listen(3000, function(){
   console.log("App running on port 3000")
 })
