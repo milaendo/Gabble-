@@ -86,9 +86,10 @@ app.get("/home",function(req,res,next){
 	const sql = `SELECT gab,user_name from gabs join users on gabs.userid = users.idusers`
 
 	conn.query(sql,function(err, results, fields){
-		
+		let stuff = {gabs:results}
+		console.log(stuff)
+		res.render("home",stuff)
 	})
-	res.render("home")
 })
 
 app.listen(3000, function(){
