@@ -9,3 +9,16 @@ body {
 h1 {
   color:blue;
 }
+#gab{
+	border:1px solid gray;
+	width:700px;
+	margin: auto;
+}
+.wrapper{
+	width:900px;
+	margin: auto;
+	padding:10px;
+}
+.User{
+	text-transform: uppercase;
+}

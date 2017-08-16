@@ -2,8 +2,26 @@
 <html>
 <head>
 	<title>Likes</title>
+	<link rel="stylesheet" type="text/css" href="/css/main.css">
 </head>
 <body>
-	
+<div class="nav"> 
+<a href="/home">Home</a><br>
+<a href="/social">Make a post</a></div>
+<div class="wrapper">
+	<div class="User">
+	{{gab.user_name}}:
+	</div>
+	<div id="gab">
+	{{gab.gab}} <br>
+	{{gab.timestamp}}
+	</div>
+	Liked By:
+	<div>
+	{{#likes}}
+	<p>{{user_name}}</p>
+	{{/likes}}
+	</div>
+</div>
 </body>
 </html>

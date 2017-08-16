@@ -102,21 +102,43 @@ ORDER BY g.timestamp DESC;`
 })
 
 app.get("/likes/:gabid",function(req,res,next){
-	const sql = `
-SELECT g.gab, u.user_name,l.userid,g.timestamp
-FROM likes l
-JOIN gabs g on g.userid=l.userid
-JOIN users u on l.userid = u.idusers;`
+	const sql1 = `
+SELECT 
+    g.gab, u.user_name, l.userid, g.timestamp
+FROM
+    likes l
+        JOIN
+    gabs g ON g.userid = l.userid
+        JOIN
+    users u ON l.userid = u.idusers
+WHERE
+    g.idgabs = ?;`
 
+	const sql2 = `
+SELECT 
+    l.*, u.*
+FROM
+    likes l
+        JOIN
+    users u ON l.userid = u.idusers
+WHERE
+    l.gabid = ?;`
 //first query gets gab info gab, gabid, time and user
 //select * from likes join with users where gabid = gabid 
 //second query gets all of the people who likes that gab
 // select * from gabid join with users (gab info)
 //build context obj for mustache and then render the likes page 
 
-	conn.query(sql,function(err, results, fields){
-		let stuff = {likes:results}
-		res.render("likes",stuff)
+	conn.query(sql1,[req.params.gabid],function(err, results, fields){
+		
+		conn.query(sql2, [req.params.gabid], function(err2, results2,fields2){
+			let stuff = {
+				gab:results[0],
+				likes: results2
+			}
+			res.render("likes",stuff)
+		})
+		
 	})
 })
 app.post("/likes",function(req,res,next){
@@ -125,17 +147,16 @@ app.post("/likes",function(req,res,next){
 	// userid comes from session req 
 	const userid = req.session.idusers
 
-	console.log(idgabs, userid)
-	//insert both as likes
+		//insert both as likes
 	const sql = `INSERT into likes (gabid,userid) VALUES (?, ?);`
 
 	conn.query(sql, [idgabs, userid], function(err, results, fields){
 		if (err){
-			console.log(err)
+		
 			res.send("there was an error")
 		}
 		else {
-			console.log(results.insertId)
+			
 			res.redirect("home")
 		}
 	})
